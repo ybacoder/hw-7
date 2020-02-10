@@ -14,8 +14,11 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.path.join("Resources", "sqlite:///hawaii.sqlite")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.path.join(
+    "Resources", "sqlite:///hawaii.sqlite"
+)
 db = SQLAlchemy(app)
+
 
 class DictMixIn:
     def to_dict(self):
@@ -60,7 +63,7 @@ def home():
             /api/v1.0/tobs: Returns a JSON list of temperature observations for the previous year.
             /api/v1.0/search: Pass a start date or both start and end dates. Returns JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
             """
-    
+
     except Exception as e:
         return jsonify({"status": "failure", "error": str(e)})
 
@@ -69,7 +72,7 @@ def home():
 def prcp():
     try:
         return "Precipation API"
-    
+
     except Exception as e:
         return jsonify({"status": "failure", "error": str(e)})
 
@@ -78,7 +81,7 @@ def prcp():
 def stations():
     try:
         return "Stations API"
-    
+
     except Exception as e:
         return jsonify({"status": "failure", "error": str(e)})
 
@@ -87,7 +90,7 @@ def stations():
 def tobs():
     try:
         return "TOBS API"
-    
+
     except Exception as e:
         return jsonify({"status": "failure", "error": str(e)})
 
@@ -97,19 +100,23 @@ def search():
 
     request_start = request.args.get("start")
     request_end = request.args.get("end")
-    
+
     try:
         base_cmd = Measurement.query
 
         if request_start:
-            base_cmd = base_cmd.filter(Measurement.date >= dt.datetime.strptime(request_start, "%Y-%m-%d"))
-        
+            base_cmd = base_cmd.filter(
+                Measurement.date >= dt.datetime.strptime(request_start, "%Y-%m-%d")
+            )
+
         if request_end:
-            base_cmd = base_cmd.filter(Measurement.date <= dt.datetime.strptime(request_end, "%Y-%m-%d"))
+            base_cmd = base_cmd.filter(
+                Measurement.date <= dt.datetime.strptime(request_end, "%Y-%m-%d")
+            )
 
         data = base_cmd.all()
 
-        return "Search API" # jsonify([measurement.to_dict() for measurement in data])
+        return "Search API"  # jsonify([measurement.to_dict() for measurement in data])
 
     except Exception as e:
         return jsonify({"status": "failure", "error": str(e)})
