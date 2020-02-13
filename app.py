@@ -67,7 +67,9 @@ def home():
 @app.route("/api/v1.0/precipitation")
 def prcp():
     try:
-        prcp = Measurement.query.with_entities(Measurement.date, Measurement.station, Measurement.prcp).all()
+        prcp = Measurement.query.with_entities(
+            Measurement.date, Measurement.station, Measurement.prcp
+        ).all()
         return jsonify(prcp)
 
     except Exception as e:
@@ -89,8 +91,12 @@ def tobs():
     date_last = Measurement.query.order_by(Measurement.id.desc()).first().date
     date_one_yr_ago = date_last - dt.timedelta(days=365)
 
-    last_yr_tobs = Measurement.query.filter(Measurement.date >= date_one_yr_ago).with_entities(Measurement.date, Measurement.station, Measurement.tobs).all()
-    
+    last_yr_tobs = (
+        Measurement.query.filter(Measurement.date >= date_one_yr_ago)
+        .with_entities(Measurement.date, Measurement.station, Measurement.tobs)
+        .all()
+    )
+
     try:
         return jsonify(last_yr_tobs)
 
@@ -109,7 +115,11 @@ def search():
 
         if request_start:
             base_cmd = base_cmd.filter(
-                Measurement.date >= (dt.datetime.strptime(request_start, "%Y-%m-%d") - dt.timedelta(days=1))
+                Measurement.date
+                >= (
+                    dt.datetime.strptime(request_start, "%Y-%m-%d")
+                    - dt.timedelta(days=1)
+                )
             )
 
         if request_end:
@@ -117,11 +127,15 @@ def search():
                 Measurement.date <= dt.datetime.strptime(request_end, "%Y-%m-%d")
             )
 
-        temps = base_cmd.with_entities(db.func.min(Measurement.tobs), db.func.avg(Measurement.tobs), db.func.max(Measurement.tobs)).all()
+        temps = base_cmd.with_entities(
+            db.func.min(Measurement.tobs),
+            db.func.avg(Measurement.tobs),
+            db.func.max(Measurement.tobs),
+        ).all()
         keys = ["min", "mean", "max"]
 
-        return jsonify({keys[i]:temps[0][i] for i in range(len(keys))})
-        
+        return jsonify({keys[i]: temps[0][i] for i in range(len(keys))})
+
     except Exception as e:
         return jsonify({"status": "failure", "error": str(e)})
 
